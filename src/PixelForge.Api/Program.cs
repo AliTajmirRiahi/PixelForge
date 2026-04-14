@@ -1,41 +1,102 @@
+using Microsoft.AspNetCore.OpenApi;
+
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
-// Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
+// -------------------------------------------------------
+// 1) Configure Services (IOC Container)
+// -------------------------------------------------------
+
+// Logging
+builder.Services.AddLogging();
+
+// Controllers or Minimal APIs
+builder.Services.AddControllers();
+
+// OpenAPI (built-in in .NET 8–10)
 builder.Services.AddOpenApi();
+
+// API Versioning
+builder.Services.AddApiVersioning(options =>
+{
+    options.AssumeDefaultVersionWhenUnspecified = true;
+    options.DefaultApiVersion = new Microsoft.AspNetCore.Mvc.ApiVersion(1, 0);
+    options.ReportApiVersions = true;
+});
+
+
+// Health Checks
+builder.Services.AddHealthChecks();
+
+// CORS (Highly recommended)
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("Default", policy =>
+    {
+        policy.AllowAnyOrigin()
+              .AllowAnyHeader()
+              .AllowAnyMethod();
+    });
+});
+
+// Register Application Services (Clean Architecture)
+//builder.Services.AddApplicationServices();
+//builder.Services.AddInfrastructureServices(builder.Configuration);
+
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
+// -------------------------------------------------------
+// 2) Configure Middleware Pipeline
+// -------------------------------------------------------
+
+// Exception handler (global, production-ready)
+app.UseExceptionHandler("/error");
+
+// HSTS (production)
+if (!app.Environment.IsDevelopment())
+{
+    app.UseHsts();
+}
+
+// HTTPS Redirect
+app.UseHttpsRedirection();
+
+// CORS
+app.UseCors("Default");
+
+// Routing
+app.UseRouting();
+
+// Authorization
+app.UseAuthorization();
+
+// -------------------------------------------------------
+// OpenAPI + Swagger UI
+// -------------------------------------------------------
 if (app.Environment.IsDevelopment())
 {
+    app.MapOpenApi();        // exposes /openapi/v1.json
+}
+else
+{
+    // In production we usually still want OpenAPI (optional)
     app.MapOpenApi();
 }
 
-app.UseHttpsRedirection();
+// Map Controllers / Minimal APIs
+app.MapControllers();
 
-var summaries = new[]
-{
-    "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
-};
+// Health Checks Endpoint
+app.MapHealthChecks("/health");
 
-app.MapGet("/weatherforecast", () =>
-{
-    var forecast =  Enumerable.Range(1, 5).Select(index =>
-        new WeatherForecast
-        (
-            DateOnly.FromDateTime(DateTime.Now.AddDays(index)),
-            Random.Shared.Next(-20, 55),
-            summaries[Random.Shared.Next(summaries.Length)]
-        ))
-        .ToArray();
-    return forecast;
-})
-.WithName("GetWeatherForecast");
-
+// Run application
 app.Run();
 
-record WeatherForecast(DateOnly Date, int TemperatureC, string? Summary)
+
+// -------------------------------------------------------
+// Optional Minimal Error Endpoint
+// -------------------------------------------------------
+app.Map("/error", (HttpContext http) =>
 {
-    public int TemperatureF => 32 + (int)(TemperatureC / 0.5556);
-}
+    return Results.Problem("An unexpected error occurred.");
+});

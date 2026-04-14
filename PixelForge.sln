@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 17
-VisualStudioVersion = 17.0.31903.59
+# Visual Studio Version 18
+VisualStudioVersion = 18.3.11505.172 d18.3
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{827E0CD3-B72D-47B6-A68D-7590B98EB39B}"
 EndProject
@@ -10,6 +10,10 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PixelForge.Application", "src\PixelForge.Application\PixelForge.Application.csproj", "{116837CF-EFB9-4610-B9C4-70E49CB27A1F}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PixelForge.Domain", "src\PixelForge.Domain\PixelForge.Domain.csproj", "{3995B079-E113-45D8-8D3B-F28CEFBFDEB8}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PixelForge.Infrastructure", "src\PixelForge.Infrastructure\PixelForge.Infrastructure.csproj", "{59E287A9-4633-455B-8585-F9CC57837E70}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "test", "test", "{25789361-D80D-4DBB-BFED-E317DD0047B3}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -57,6 +61,18 @@ Global
 		{3995B079-E113-45D8-8D3B-F28CEFBFDEB8}.Release|x64.Build.0 = Release|Any CPU
 		{3995B079-E113-45D8-8D3B-F28CEFBFDEB8}.Release|x86.ActiveCfg = Release|Any CPU
 		{3995B079-E113-45D8-8D3B-F28CEFBFDEB8}.Release|x86.Build.0 = Release|Any CPU
+		{59E287A9-4633-455B-8585-F9CC57837E70}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{59E287A9-4633-455B-8585-F9CC57837E70}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{59E287A9-4633-455B-8585-F9CC57837E70}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{59E287A9-4633-455B-8585-F9CC57837E70}.Debug|x64.Build.0 = Debug|Any CPU
+		{59E287A9-4633-455B-8585-F9CC57837E70}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{59E287A9-4633-455B-8585-F9CC57837E70}.Debug|x86.Build.0 = Debug|Any CPU
+		{59E287A9-4633-455B-8585-F9CC57837E70}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{59E287A9-4633-455B-8585-F9CC57837E70}.Release|Any CPU.Build.0 = Release|Any CPU
+		{59E287A9-4633-455B-8585-F9CC57837E70}.Release|x64.ActiveCfg = Release|Any CPU
+		{59E287A9-4633-455B-8585-F9CC57837E70}.Release|x64.Build.0 = Release|Any CPU
+		{59E287A9-4633-455B-8585-F9CC57837E70}.Release|x86.ActiveCfg = Release|Any CPU
+		{59E287A9-4633-455B-8585-F9CC57837E70}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -65,5 +81,9 @@ Global
 		{414BCF0E-0C7E-453C-AFBF-9DE8BB61DD30} = {827E0CD3-B72D-47B6-A68D-7590B98EB39B}
 		{116837CF-EFB9-4610-B9C4-70E49CB27A1F} = {827E0CD3-B72D-47B6-A68D-7590B98EB39B}
 		{3995B079-E113-45D8-8D3B-F28CEFBFDEB8} = {827E0CD3-B72D-47B6-A68D-7590B98EB39B}
+		{59E287A9-4633-455B-8585-F9CC57837E70} = {827E0CD3-B72D-47B6-A68D-7590B98EB39B}
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {38AD449E-0DFE-45F7-9486-B0DBDBAF375E}
 	EndGlobalSection
 EndGlobal
