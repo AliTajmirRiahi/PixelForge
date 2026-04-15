@@ -13,8 +13,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PixelForge.Domain", "src\Pi
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PixelForge.Infrastructure", "src\PixelForge.Infrastructure\PixelForge.Infrastructure.csproj", "{59E287A9-4633-455B-8585-F9CC57837E70}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "test", "test", "{25789361-D80D-4DBB-BFED-E317DD0047B3}"
-EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{0AB3BF05-4346-4AA6-1389-037BE0695223}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PixelForge.Unit.Tests", "tests\PixelForge.Unit.Tests\PixelForge.Unit.Tests.csproj", "{A754BE5B-A022-4B69-B0FC-BC126C21BE67}"
