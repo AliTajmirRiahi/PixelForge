@@ -1,0 +1,29 @@
+﻿using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+using PixelForge.Application.Interfaces;
+using PixelForge.Infrastructure.Cache;
+using PixelForge.Infrastructure.ImageProcessing;
+using PixelForge.Infrastructure.Options;
+using PixelForge.Infrastructure.Storage;
+
+namespace PixelForge.Infrastructure;
+
+public static class DependencyInjection
+{
+    public static IServiceCollection AddInfrastructureServices(
+        this IServiceCollection services,
+        IConfiguration configuration)
+    {
+        services.AddMemoryCache();
+
+        // Bind StorageOptions
+        services.Configure<StorageOptions>(configuration.GetSection("Storage"));
+
+        // Register LocalStorageService
+        services.AddSingleton<IStorageService, LocalStorageService>();
+        services.AddSingleton<IImageProcessor, ImageSharpProcessor>();
+        services.AddSingleton<ICacheService, MemoryCacheService>();
+
+        return services;
+    }
+}
