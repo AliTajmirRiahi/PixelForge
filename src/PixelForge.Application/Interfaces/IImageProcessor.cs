@@ -1,8 +1,10 @@
-﻿using PixelForge.Domain.ValueObjects;
+﻿using PixelForge.Application.DTOs;
+using PixelForge.Domain.ValueObjects;
 
 namespace PixelForge.Application.Interfaces;
 
 public interface IImageProcessor
 {
-    Task<Stream> ProcessAsync(Stream inputImage, TransformOptions options, CancellationToken cancellationToken = default);
+    Task<ImageProcessResult> ProcessAsync(Stream input, TransformOptions options, CancellationToken token);
+    string GetImageMimeType(byte[] bytes);
 }

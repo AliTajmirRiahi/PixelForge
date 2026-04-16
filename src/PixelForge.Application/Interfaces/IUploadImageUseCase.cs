@@ -2,5 +2,5 @@
 
 public interface IUploadImageUseCase
 {
-    Task<string> UploadAsync(Stream fileStream, string fileName, string folder);
+    Task<string> UploadAsync(Stream fileStream, string fileName, string folder, CancellationToken token);
 }

@@ -11,10 +11,10 @@ public class UploadImageUseCase : IUploadImageUseCase
         _storage = storage;
     }
 
-    public async Task<string> UploadAsync(Stream fileStream, string fileName, string folder)
+    public async Task<string> UploadAsync(Stream fileStream, string fileName, string folder, CancellationToken token)
     {
         var fullPath = $"{folder}/{fileName}".Replace("//", "/");
-        await _storage.SaveAsync(fullPath, fileStream);
+        await _storage.SaveAsync(fullPath, fileStream, token);
         return fullPath;
     }
 }
