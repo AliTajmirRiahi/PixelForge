@@ -1,26 +1,89 @@
-﻿using PixelForge.Application.Interfaces;
+﻿using ImageMagick;
+using PixelForge.Application.DTOs;
+using PixelForge.Application.Interfaces;
 using PixelForge.Domain.ValueObjects;
-using SixLabors.ImageSharp;
-using SixLabors.ImageSharp.Processing;
 
 namespace PixelForge.Infrastructure.ImageProcessing;
 
-public class ImageSharpProcessor : IImageProcessor
+public sealed class MagickImageProcessor : IImageProcessor
 {
-    public async Task<Stream> ProcessAsync(Stream input, TransformOptions options, CancellationToken cancellationToken = default)
+    public async Task<ImageProcessResult> ProcessAsync(
+        Stream input,
+        TransformOptions options,
+        CancellationToken cancellationToken = default)
     {
-        input.Position = 0;
-        using var image = await Image.LoadAsync(input, cancellationToken);
+        if (input == null)
+            throw new ArgumentNullException(nameof(input));
 
-        if (options.Width.HasValue)
+        input.Position = 0;
+
+        using var image = new MagickImage(input);
+
+        // -------------------------
+        // Resize
+        // -------------------------
+        if (options.Width.HasValue || options.Height.HasValue)
         {
-            image.Mutate(x => x.Resize(options.Width.Value, 0));
+            var width = options.Width;
+            var height = options.Height;
+
+            var geometry = new MagickGeometry(
+                width ?? 0,
+                height ?? 0)
+            {
+                IgnoreAspectRatio = false
+            };
+
+            image.Resize(geometry);
         }
 
+        // -------------------------
+        // Quality
+        // -------------------------
+        if (options.Quality.HasValue)
+        {
+            image.Quality = options.Quality.Value;
+        }
+
+        // -------------------------
+        // Format
+        // -------------------------
+        if (!string.IsNullOrWhiteSpace(options.Format))
+        {
+            image.Format = ParseFormat(options.Format);
+        }
+
+        // -------------------------
+        // Output
+        // -------------------------
         var output = new MemoryStream();
-        await image.SaveAsJpegAsync(output, cancellationToken: cancellationToken);
+        await image.WriteAsync(output, image.Format, cancellationToken);
         output.Position = 0;
 
-        return output;
+        var formatInfo = MagickFormatInfo.Create(image.Format);
+        var mimeType = formatInfo?.MimeType ?? "image/jpeg";
+
+        return new ImageProcessResult(output, mimeType);
+    }
+
+    private static MagickFormat ParseFormat(string format)
+    {
+        return format.ToLower() switch
+        {
+            "jpg" or "jpeg" => MagickFormat.Jpeg,
+            "png" => MagickFormat.Png,
+            "webp" => MagickFormat.WebP,
+            "gif" => MagickFormat.Gif,
+            _ => MagickFormat.Jpeg
+        };
+    }
+
+    public string GetImageMimeType(byte[] bytes)
+    {
+        using var image = new MagickImage(bytes);
+
+        var formatInfo = MagickFormatInfo.Create(image.Format);
+        return formatInfo?.MimeType ?? "image/jpeg";
+
     }
 }

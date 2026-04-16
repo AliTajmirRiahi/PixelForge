@@ -21,7 +21,7 @@ public static class DependencyInjection
 
         // Register LocalStorageService
         services.AddSingleton<IStorageService, LocalStorageService>();
-        services.AddSingleton<IImageProcessor, ImageSharpProcessor>();
+        services.AddSingleton<IImageProcessor, MagickImageProcessor>();
         services.AddSingleton<ICacheService, MemoryCacheService>();
 
         return services;
