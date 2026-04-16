@@ -2,6 +2,7 @@
 using PixelForge.Application.Interfaces;
 using PixelForge.Application.UseCases;
 using PixelForge.Domain.ValueObjects;
+using Swashbuckle.AspNetCore.Annotations;
 using System.Diagnostics;
 
 namespace PixelForge.Api.Controllers;
@@ -32,20 +33,37 @@ public class ImageController : ControllerBase
     }
 
 
-    [HttpGet("process/w{width}/q{quality}/{format}")]
+    [HttpGet("process/w{width}/q{quality}/{format?}")]
     public async Task<IActionResult> Process(
         uint width,
         uint quality,
-        string format,
+        [FromRoute, SwaggerParameter(Required = false)] string? format,
         [FromQuery] string path,
         CancellationToken cancellationToken = default)
     {
         if (string.IsNullOrWhiteSpace(path))
             return BadRequest("Path is required");
 
-        var options = new TransformOptions(width, null, quality, format);
+        var options = new TransformOptions(width, 0, quality, format);
 
-        var result = await _processUseCase.ProcessAsync(path, options, cancellationToken);
+        var result = await _processUseCase.ProcessImageAsync(path, options, cancellationToken);
+        if (result == null)
+            return NotFound();
+
+        return File(result.Stream, result.MimeType);
+    }
+    [HttpGet("process/{format?}")]
+    public async Task<IActionResult> Process(
+        [FromRoute, SwaggerParameter(Required = false)] string? format,
+        [FromQuery] string path,
+        CancellationToken cancellationToken = default)
+    {
+        if (string.IsNullOrWhiteSpace(path))
+            return BadRequest("Path is required");
+
+        var options = new TransformOptions(0, 0, 0, format);
+
+        var result = await _processUseCase.ProcessImageAsync(path, options, cancellationToken);
         if (result == null)
             return NotFound();
 

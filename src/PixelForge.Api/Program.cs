@@ -1,6 +1,7 @@
 using Microsoft.OpenApi;
 using PixelForge.Application;
 using PixelForge.Infrastructure;
+using PixelForge.Api.Filters.Swagger;
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -54,6 +55,7 @@ builder.Services.AddHttpClient();
 
 builder.Services.AddSwaggerGen(options =>
 {
+    options.ParameterFilter<OptionalRouteParameterFilter>();
     options.SwaggerDoc("v1", new OpenApiInfo { Title = "PixelForge V1", Version = "v1" });
     //options.SwaggerDoc("v2", new OpenApiInfo { Title = "PixelForge V2", Version = "v2" });
 });
