@@ -19,7 +19,7 @@ public class ProcessImageUseCase : IProcessImageUseCase
         _processor = processor;
     }
 
-    public async Task<ImageProcessResult> ProcessAsync(
+    public async Task<ImageProcessResult> ProcessImageAsync(
         string path,
         TransformOptions options,
         CancellationToken token)

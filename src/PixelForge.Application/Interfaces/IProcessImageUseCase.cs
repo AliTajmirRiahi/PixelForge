@@ -5,5 +5,5 @@ namespace PixelForge.Application.UseCases;
 
 public interface IProcessImageUseCase
 {
-    Task<ImageProcessResult> ProcessAsync(string fullPath, TransformOptions options, CancellationToken token);
+    Task<ImageProcessResult> ProcessImageAsync(string fullPath, TransformOptions options, CancellationToken token);
 }
