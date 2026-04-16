@@ -1,4 +1,7 @@
-using Microsoft.AspNetCore.OpenApi;
+using Microsoft.OpenApi;
+using PixelForge.Application;
+using PixelForge.Infrastructure;
+
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -23,6 +26,11 @@ builder.Services.AddApiVersioning(options =>
     options.ReportApiVersions = true;
 });
 
+builder.Services.AddVersionedApiExplorer(options =>
+{
+    options.GroupNameFormat = "'v'VVV"; // It shows version like this v1.0 or v1
+    options.SubstituteApiVersionInUrl = true; // On Swagger variable {version} replace with real value (example v1)
+});
 
 // Health Checks
 builder.Services.AddHealthChecks();
@@ -39,11 +47,33 @@ builder.Services.AddCors(options =>
 });
 
 // Register Application Services (Clean Architecture)
-//builder.Services.AddApplicationServices();
-//builder.Services.AddInfrastructureServices(builder.Configuration);
+builder.Services.AddApplicationServices();
+builder.Services.AddInfrastructureServices(builder.Configuration);
 
+builder.Services.AddHttpClient();
+
+builder.Services.AddSwaggerGen(options =>
+{
+    options.SwaggerDoc("v1", new OpenApiInfo { Title = "PixelForge V1", Version = "v1" });
+    //options.SwaggerDoc("v2", new OpenApiInfo { Title = "PixelForge V2", Version = "v2" });
+});
 
 var app = builder.Build();
+
+// Configure the HTTP request pipeline.
+if (app.Environment.IsDevelopment())
+{
+    app.UseSwagger(new Swashbuckle.AspNetCore.Swagger.SwaggerOptions()
+    {
+        OpenApiVersion = OpenApiSpecVersion.OpenApi3_1
+    });
+    app.UseSwaggerUI(options =>
+    {
+        // Show diffrent versions in Swagger's drop down 
+        options.SwaggerEndpoint("/swagger/v1/swagger.json", "PixelForge V1 Docs");
+        //options.SwaggerEndpoint("/swagger/v2/swagger.json", "V2 Docs");
+    });
+}
 
 // -------------------------------------------------------
 // 2) Configure Middleware Pipeline

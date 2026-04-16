@@ -1,14 +1,16 @@
 ﻿namespace PixelForge.Domain.ValueObjects;
 
-public class TransformOptions
+public sealed class TransformOptions
 {
-    public int? Width { get; init; }
-    public int? Quality { get; init; }
+    public uint? Width { get; init; }
+    public uint? Height { get; init; }
+    public uint? Quality { get; init; }
     public string? Format { get; init; }
 
-    public TransformOptions(int? width, int? quality, string? format)
+    public TransformOptions(uint? width, uint? height, uint? quality, string? format)
     {
         Width = width;
+        Height = height;
         Quality = quality;
         Format = format?.ToLower();
     }
