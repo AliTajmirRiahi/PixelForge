@@ -54,7 +54,7 @@ namespace PixelForge.Unit.Tests.Application
 
             _processor.Setup(c => c.GetImageMimeType(cachedBytes)).Returns("image/jpeg");
 
-            var result = await _useCase.ProcessAsync(
+            var result = await _useCase.ProcessImageAsync(
                 "file.jpg",
                 options,
                 CancellationToken.None);
@@ -86,7 +86,7 @@ namespace PixelForge.Unit.Tests.Application
             _processor.Setup(p => p.ProcessAsync(inputStream, options, It.IsAny<CancellationToken>()))
                       .ReturnsAsync(new ImageProcessResult(processed, "image/png"));
 
-            var result = await _useCase.ProcessAsync(
+            var result = await _useCase.ProcessImageAsync(
                 "photo.png", options, CancellationToken.None);
 
             ReadAll(result.Stream).Should().Equal(new byte[] { 7 });
@@ -116,7 +116,7 @@ namespace PixelForge.Unit.Tests.Application
             _processor.Setup(p => p.ProcessAsync(input, options, It.IsAny<CancellationToken>()))
                       .ReturnsAsync(new ImageProcessResult(processed, "image/webp"));
 
-            var result = await _useCase.ProcessAsync(
+            var result = await _useCase.ProcessImageAsync(
                 "x.jpg",
                 options,
                 CancellationToken.None);
@@ -149,7 +149,7 @@ namespace PixelForge.Unit.Tests.Application
             _processor.Setup(p => p.ProcessAsync(input, options, It.IsAny<CancellationToken>()))
                       .ReturnsAsync(new ImageProcessResult(processed, "image/webp"));
 
-            var result = await _useCase.ProcessAsync(
+            var result = await _useCase.ProcessImageAsync(
                 "test.jpg",
                 options,
                 CancellationToken.None);
@@ -178,7 +178,7 @@ namespace PixelForge.Unit.Tests.Application
             _processor.Setup(p => p.ProcessAsync(input, options, It.IsAny<CancellationToken>()))
                       .ReturnsAsync(new ImageProcessResult(processed, "image/jpeg"));
 
-            await _useCase.ProcessAsync(
+            await _useCase.ProcessImageAsync(
                 "item.jpg",
                 options,
                 CancellationToken.None);
@@ -207,7 +207,7 @@ namespace PixelForge.Unit.Tests.Application
             _storage.Setup(s => s.GetAsync("fault.png", It.IsAny<CancellationToken>()))
                     .ThrowsAsync(new IOException("storage error"));
 
-            var act = () => _useCase.ProcessAsync(
+            var act = () => _useCase.ProcessImageAsync(
                 "fault.png",
                 options,
                 CancellationToken.None);
@@ -240,7 +240,7 @@ namespace PixelForge.Unit.Tests.Application
             _processor.Setup(p => p.ProcessAsync(input, options, It.IsAny<CancellationToken>()))
                       .ThrowsAsync(new Exception("processor failed"));
 
-            var act = () => _useCase.ProcessAsync(
+            var act = () => _useCase.ProcessImageAsync(
                 "x.jpg",
                 options,
                 CancellationToken.None);
@@ -278,7 +278,7 @@ namespace PixelForge.Unit.Tests.Application
             _cache.Setup(c => c.SetAsync(cacheKey, It.IsAny<byte[]>(), It.IsAny<TimeSpan>()))
                   .ThrowsAsync(new Exception("cache save failed"));
 
-            var act = () => _useCase.ProcessAsync(
+            var act = () => _useCase.ProcessImageAsync(
                 "file.png",
                 options,
                 CancellationToken.None);

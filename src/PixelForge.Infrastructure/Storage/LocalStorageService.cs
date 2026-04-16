@@ -35,6 +35,10 @@ public class LocalStorageService : IStorageService
     public Task<Stream> GetAsync(string path, CancellationToken cancellationToken = default)
     {
         var fullPath = Path.Combine(_root, path);
+
+        if (!ExistsAsync(path, cancellationToken).Result)
+            throw new FileNotFoundException("File not found");
+
         Stream stream = File.OpenRead(fullPath);
         return Task.FromResult(stream);
     }

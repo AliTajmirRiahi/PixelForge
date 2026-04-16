@@ -22,7 +22,7 @@ public sealed class MagickImageProcessor : IImageProcessor
         // -------------------------
         // Resize
         // -------------------------
-        if (options.Width.HasValue || options.Height.HasValue)
+        if ((options.Width.HasValue || options.Height.HasValue) && options.Width != 0)
         {
             var width = options.Width;
             var height = options.Height;
@@ -40,7 +40,7 @@ public sealed class MagickImageProcessor : IImageProcessor
         // -------------------------
         // Quality
         // -------------------------
-        if (options.Quality.HasValue)
+        if (options.Quality.HasValue && options.Quality != 0)
         {
             image.Quality = options.Quality.Value;
         }
