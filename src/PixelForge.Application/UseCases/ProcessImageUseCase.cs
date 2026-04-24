@@ -25,8 +25,8 @@ public class ProcessImageUseCase : IProcessImageUseCase
         CancellationToken token)
     {
         var cacheKey = $"{path}:{options.Width}:{options.Height}:{options.Quality}:{options.Format}";
-        var cached = await _cache.GetAsync(cacheKey);
-        if (cached != null)
+        var cached = await _cache.GetAsync(cacheKey, token);
+        if (cached != null && cached.Length != 0)
         {
             return new ImageProcessResult(new MemoryStream(cached), _processor.GetImageMimeType(cached));
         }
@@ -40,7 +40,7 @@ public class ProcessImageUseCase : IProcessImageUseCase
         // save to cache
         using var ms = new MemoryStream();
         await result.Stream.CopyToAsync(ms, token);
-        await _cache.SetAsync(cacheKey, ms.ToArray(), TimeSpan.FromMinutes(10));
+        await _cache.SetAsync(cacheKey, ms.ToArray(), TimeSpan.FromMinutes(10), token);
 
         result.Stream.Position = 0;
         return result;

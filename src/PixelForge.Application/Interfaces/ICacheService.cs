@@ -2,6 +2,6 @@
 
 public interface ICacheService
 {
-    Task<byte[]?> GetAsync(string key);
-    Task SetAsync(string key, byte[] data, TimeSpan expiration);
+    Task<byte[]?> GetAsync(string ke, CancellationToken token);
+    Task SetAsync(string key, byte[] data, TimeSpan expiration, CancellationToken token);
 }

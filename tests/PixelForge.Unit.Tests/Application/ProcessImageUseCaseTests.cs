@@ -49,7 +49,7 @@ namespace PixelForge.Unit.Tests.Application
 
             var cachedBytes = new byte[] { 1, 2, 3 };
 
-            _cache.Setup(c => c.GetAsync(cacheKey))
+            _cache.Setup(c => c.GetAsync(cacheKey, It.IsAny<CancellationToken>()))
                   .ReturnsAsync(cachedBytes);
 
             _processor.Setup(c => c.GetImageMimeType(cachedBytes)).Returns("image/jpeg");
@@ -75,7 +75,7 @@ namespace PixelForge.Unit.Tests.Application
             var options = new TransformOptions(200, 300, 70, "png");
             var cacheKey = BuildKey("photo.png", options);
 
-            _cache.Setup(c => c.GetAsync(cacheKey)).ReturnsAsync((byte[]?)null);
+            _cache.Setup(c => c.GetAsync(cacheKey, It.IsAny<CancellationToken>())).ReturnsAsync((byte[]?)null);
 
             var inputStream = new MemoryStream(new byte[] { 9 });
             var processed = new MemoryStream(new byte[] { 7 });
@@ -104,7 +104,7 @@ namespace PixelForge.Unit.Tests.Application
             var options = new TransformOptions(300, 400, 90, "webp");
             var cacheKey = BuildKey("x.jpg", options);
 
-            _cache.Setup(c => c.GetAsync(cacheKey))
+            _cache.Setup(c => c.GetAsync(cacheKey, It.IsAny<CancellationToken>()))
                   .ReturnsAsync((byte[]?)null);
 
             var input = new MemoryStream(new byte[] { 1, 2 });
@@ -138,7 +138,7 @@ namespace PixelForge.Unit.Tests.Application
             var options = new TransformOptions(400, 500, 70, "webp");
             var cacheKey = BuildKey("test.jpg", options);
 
-            _cache.Setup(c => c.GetAsync(cacheKey)).ReturnsAsync((byte[]?)null);
+            _cache.Setup(c => c.GetAsync(cacheKey, It.IsAny<CancellationToken>())).ReturnsAsync((byte[]?)null);
 
             var input = new MemoryStream(new byte[] { 3 });
             var processed = new MemoryStream(new byte[] { 10, 11, 12 });
@@ -166,7 +166,7 @@ namespace PixelForge.Unit.Tests.Application
             var options = new TransformOptions(500, 600, 60, "jpg");
             var cacheKey = BuildKey("item.jpg", options);
 
-            _cache.Setup(c => c.GetAsync(cacheKey))
+            _cache.Setup(c => c.GetAsync(cacheKey, It.IsAny<CancellationToken>()))
                   .ReturnsAsync((byte[]?)null);
 
             var input = new MemoryStream(new byte[] { 1 });
@@ -187,7 +187,8 @@ namespace PixelForge.Unit.Tests.Application
                 c => c.SetAsync(
                     cacheKey,
                     It.Is<byte[]>(b => b.SequenceEqual(new byte[] { 99 })),
-                    TimeSpan.FromMinutes(10)
+                    TimeSpan.FromMinutes(10),
+                    It.IsAny<CancellationToken>()
                 ),
                 Times.Once
             );
@@ -202,7 +203,7 @@ namespace PixelForge.Unit.Tests.Application
             var options = new TransformOptions(600, 700, 80, "png");
             var cacheKey = BuildKey("fault.png", options);
 
-            _cache.Setup(c => c.GetAsync(cacheKey)).ReturnsAsync((byte[]?)null);
+            _cache.Setup(c => c.GetAsync(cacheKey, It.IsAny<CancellationToken>())).ReturnsAsync((byte[]?)null);
 
             _storage.Setup(s => s.GetAsync("fault.png", It.IsAny<CancellationToken>()))
                     .ThrowsAsync(new IOException("storage error"));
@@ -230,7 +231,7 @@ namespace PixelForge.Unit.Tests.Application
             var options = new TransformOptions(700, 800, 50, "jpg");
             var cacheKey = BuildKey("x.jpg", options);
 
-            _cache.Setup(c => c.GetAsync(cacheKey)).ReturnsAsync((byte[]?)null);
+            _cache.Setup(c => c.GetAsync(cacheKey, It.IsAny<CancellationToken>())).ReturnsAsync((byte[]?)null);
 
             var input = new MemoryStream(new byte[] { 7 });
 
@@ -249,7 +250,7 @@ namespace PixelForge.Unit.Tests.Application
                      .WithMessage("processor failed");
 
             _cache.Verify(
-                c => c.SetAsync(It.IsAny<string>(), It.IsAny<byte[]>(), It.IsAny<TimeSpan>()),
+                c => c.SetAsync(It.IsAny<string>(), It.IsAny<byte[]>(), It.IsAny<TimeSpan>(), It.IsAny<CancellationToken>()),
                 Times.Never
             );
         }
@@ -263,7 +264,7 @@ namespace PixelForge.Unit.Tests.Application
             var options = new TransformOptions(800, 900, 40, "png");
             var cacheKey = BuildKey("file.png", options);
 
-            _cache.Setup(c => c.GetAsync(cacheKey))
+            _cache.Setup(c => c.GetAsync(cacheKey, It.IsAny<CancellationToken>()))
                   .ReturnsAsync((byte[]?)null);
 
             var input = new MemoryStream(new byte[] { 8 });
@@ -275,7 +276,7 @@ namespace PixelForge.Unit.Tests.Application
             _processor.Setup(p => p.ProcessAsync(input, options, It.IsAny<CancellationToken>()))
                       .ReturnsAsync(new ImageProcessResult(processed, "image/png"));
 
-            _cache.Setup(c => c.SetAsync(cacheKey, It.IsAny<byte[]>(), It.IsAny<TimeSpan>()))
+            _cache.Setup(c => c.SetAsync(cacheKey, It.IsAny<byte[]>(), It.IsAny<TimeSpan>(), It.IsAny<CancellationToken>()))
                   .ThrowsAsync(new Exception("cache save failed"));
 
             var act = () => _useCase.ProcessImageAsync(

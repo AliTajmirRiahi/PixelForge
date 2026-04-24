@@ -12,12 +12,12 @@ public class MemoryCacheService : ICacheService
         _cache = cache;
     }
 
-    public Task<byte[]?> GetAsync(string key)
+    public Task<byte[]?> GetAsync(string key, CancellationToken token)
     {
         return Task.FromResult(_cache.Get<byte[]>(key));
     }
 
-    public Task SetAsync(string key, byte[] data, TimeSpan expiration)
+    public Task SetAsync(string key, byte[] data, TimeSpan expiration, CancellationToken token)
     {
         _cache.Set(key, data, expiration);
         return Task.CompletedTask;
