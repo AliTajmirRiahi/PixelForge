@@ -41,6 +41,7 @@ public static class DependencyInjection
         });
 
         services.AddSingleton<ICacheService, HybridCacheService>();//It is Hybrid Caching (Memory + Redis)
+        services.AddSingleton<IHybridCacheWrapper, HybridCacheWrapper>();//It is Hybrid Caching (Memory + Redis)
 
         return services;
     }
