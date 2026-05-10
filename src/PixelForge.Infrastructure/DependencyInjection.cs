@@ -20,6 +20,7 @@ public static class DependencyInjection
 
         // Bind StorageOptions
         services.Configure<StorageOptions>(configuration.GetSection("Storage"));
+        services.Configure<WatermarkOption>(configuration.GetSection("Watermark"));
 
         // Register LocalStorageService
         services.AddSingleton<IStorageService, LocalStorageService>();

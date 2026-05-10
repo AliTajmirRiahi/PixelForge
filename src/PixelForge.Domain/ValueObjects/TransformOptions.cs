@@ -7,6 +7,11 @@ public sealed class TransformOptions
     public uint? Quality { get; init; }
     public string? Format { get; init; }
 
+    public TransformOptions()
+    {
+        
+    }
+
     public TransformOptions(uint? width, uint? height, uint? quality, string? format)
     {
         Width = width;
