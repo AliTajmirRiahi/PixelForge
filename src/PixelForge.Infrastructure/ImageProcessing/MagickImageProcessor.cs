@@ -11,11 +11,13 @@ public sealed class MagickImageProcessor : IImageProcessor
 {
     public ImageProccessingHelper _imageProccessingHelper { get; }
     public IOptions<WatermarkOption> _watermarkOption { get; }
+    public IOptions<ThumbnailOption> _thumbnailOption { get; }
 
-    public MagickImageProcessor(ImageProccessingHelper imageProccessingHelper ,IOptions<WatermarkOption> watermarkOption)
+    public MagickImageProcessor(ImageProccessingHelper imageProccessingHelper, IOptions<WatermarkOption> watermarkOption, IOptions<ThumbnailOption> thumbnailOption)
     {
         _imageProccessingHelper = imageProccessingHelper;
         _watermarkOption = watermarkOption;
+        _thumbnailOption = thumbnailOption;
     }
     public async Task<ImageProcessResult> ProcessAsync(
         Stream input,
@@ -24,6 +26,8 @@ public sealed class MagickImageProcessor : IImageProcessor
     {
         if (input == null)
             throw new ArgumentNullException(nameof(input));
+
+        cancellationToken.ThrowIfCancellationRequested();
 
         input.Position = 0;
 
@@ -140,6 +144,45 @@ public sealed class MagickImageProcessor : IImageProcessor
         var formatInfo = MagickFormatInfo.Create(image.Format);
         return formatInfo?.MimeType ?? "image/jpeg";
 
+    }
+
+    public async Task<ImageProcessResult> ThumbnailAsync(Stream input, TransformOptions options, CancellationToken cancellationToken)
+    {
+        if (input is null) throw new ArgumentNullException(nameof(input));
+
+        cancellationToken.ThrowIfCancellationRequested();
+
+        input.Position = 0;
+        using var image = new MagickImage(input);
+
+        double scalePercentage = _thumbnailOption.Value.Scale;
+
+        uint newWidth = (uint)(image.Width * scalePercentage);
+        uint newHeight = (uint)(image.Height * scalePercentage);
+
+        image.Thumbnail(new MagickGeometry(newWidth, newHeight));
+
+        image.Quality = options.Quality > 0 ? (uint)options.Quality : 75;
+
+        // -------------------------
+        // Format
+        // -------------------------
+        if (!string.IsNullOrWhiteSpace(options.Format))
+        {
+            image.Format = _imageProccessingHelper.ParseFormat(options.Format);
+        }
+
+        // -------------------------
+        // Output
+        // -------------------------
+        var output = new MemoryStream();
+        await image.WriteAsync(output, image.Format, cancellationToken);
+        output.Position = 0;
+
+        var formatInfo = MagickFormatInfo.Create(image.Format);
+        var mimeType = formatInfo?.MimeType ?? "image/jpeg";
+
+        return new ImageProcessResult(output, mimeType);
     }
 
 }

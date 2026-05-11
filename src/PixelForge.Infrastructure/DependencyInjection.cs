@@ -21,10 +21,12 @@ public static class DependencyInjection
         // Bind StorageOptions
         services.Configure<StorageOptions>(configuration.GetSection("Storage"));
         services.Configure<WatermarkOption>(configuration.GetSection("Watermark"));
+        services.Configure<ThumbnailOption>(configuration.GetSection("Thumbnail"));
 
         // Register LocalStorageService
         services.AddSingleton<IStorageService, LocalStorageService>();
         services.AddSingleton<IImageProcessor, MagickImageProcessor>();
+        services.AddSingleton<ImageProccessingHelper>();
         //services.AddSingleton<ICacheService, MemoryCacheService>();
 
         services.AddStackExchangeRedisCache(options =>

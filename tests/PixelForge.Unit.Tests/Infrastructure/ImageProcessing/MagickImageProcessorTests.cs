@@ -26,7 +26,7 @@ public class MagickImageProcessorTests
 
     private static MagickImageProcessor CreateProcessor(bool watermarkEnabled = false)
     {
-        var options = Options.Create(new WatermarkOption
+        var watermarkOption = Options.Create(new WatermarkOption
         {
             IsActive = watermarkEnabled,
             Mark = "PixelForge",
@@ -35,7 +35,12 @@ public class MagickImageProcessorTests
             Opacity = 50
         });
 
-        return new MagickImageProcessor(options);
+        var thumbnailOption = Options.Create(new ThumbnailOption
+        {
+            Scale = 0.25f
+        });
+
+        return new MagickImageProcessor(new ImageProccessingHelper(), watermarkOption, thumbnailOption);
     }
 
     [Fact]
@@ -240,4 +245,22 @@ public class MagickImageProcessorTests
 
         result.Stream.Should().NotBeNull();
     }
+
+    [Fact]
+    public async Task ThumbnailAsync_ShouldCreateThumbnail()
+    {
+        var processor = CreateProcessor();
+        var input = CreateTestImage(800, 600);
+
+        var result = await processor.ThumbnailAsync(
+            input,
+            new TransformOptions { Width = 200 },
+            CancellationToken.None);
+
+        result.Stream.Position = 0;
+        using var image = new MagickImage(result.Stream);
+
+        image.Width.Should().Be(200);
+    }
+
 }

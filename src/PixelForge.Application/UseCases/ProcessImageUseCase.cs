@@ -19,10 +19,7 @@ public class ProcessImageUseCase : IProcessImageUseCase
         _processor = processor;
     }
 
-    public async Task<ImageProcessResult> ProcessImageAsync(
-        string path,
-        TransformOptions options,
-        CancellationToken token)
+    public async Task<ImageProcessResult> ProcessImageAsync(string path, TransformOptions options, CancellationToken token)
     {
         var cacheKey = $"{path}:{options.Width}:{options.Height}:{options.Quality}:{options.Format}";
         var cached = await _cache.GetAsync(cacheKey, token);
@@ -36,6 +33,30 @@ public class ProcessImageUseCase : IProcessImageUseCase
             return null!;
 
         var result = await _processor.ProcessAsync(inputStream, options, token);
+
+        // save to cache
+        using var ms = new MemoryStream();
+        await result.Stream.CopyToAsync(ms, token);
+        await _cache.SetAsync(cacheKey, ms.ToArray(), TimeSpan.FromMinutes(10), token);
+
+        result.Stream.Position = 0;
+        return result;
+    }
+
+    public async Task<ImageProcessResult> ThumbnailImageAsync(string path, TransformOptions options, CancellationToken token)
+    {
+        var cacheKey = $"thumbnail:{path}:{options.Width}:{options.Height}:{options.Quality}:{options.Format}";
+        var cached = await _cache.GetAsync(cacheKey, token);
+        if (cached != null && cached.Length != 0)
+        {
+            return new ImageProcessResult(new MemoryStream(cached), _processor.GetImageMimeType(cached));
+        }
+
+        var inputStream = await _storage.GetAsync(path, token);
+        if (inputStream == null)
+            return null!;
+
+        var result = await _processor.ThumbnailAsync(inputStream, options, token);
 
         // save to cache
         using var ms = new MemoryStream();

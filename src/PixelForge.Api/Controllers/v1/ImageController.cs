@@ -52,6 +52,9 @@ public class ImageController : ControllerBase
 
         return File(result.Stream, result.MimeType);
     }
+
+
+
     [HttpGet("process/{format?}")]
     public async Task<IActionResult> Process(
         [FromRoute, SwaggerParameter(Required = false)] string? format,
@@ -69,4 +72,24 @@ public class ImageController : ControllerBase
 
         return File(result.Stream, result.MimeType);
     }
+
+    [HttpGet("thumbnail/q{quality}/{format?}")]
+    public async Task<IActionResult> Thumbnail(
+        uint quality,
+        [FromRoute, SwaggerParameter(Required = false)] string? format,
+        [FromQuery] string path,
+        CancellationToken cancellationToken = default)
+    {
+        if (string.IsNullOrWhiteSpace(path))
+            return BadRequest("Path is required");
+
+        var options = new TransformOptions(0, 0, quality, format);
+
+        var result = await _processUseCase.ThumbnailImageAsync(path, options, cancellationToken);
+        if (result == null)
+            return NotFound();
+
+        return File(result.Stream, result.MimeType);
+    }
+
 }
