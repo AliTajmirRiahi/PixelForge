@@ -84,11 +84,36 @@ public sealed class MagickImageProcessor : IImageProcessor
                 );
             }
 
-            watermark.Rotate(GetRotation(_watermarkOption.Value.Direction));
+            // -------------------------
+            // Tiled Diagonal Watermark
+            // -------------------------
+            if (_watermarkOption.Value.Direction == WatermarkDirection.TiledDiagonal)
+            {
+                watermark.Rotate(45);
 
-            var gravity = GetGravity(_watermarkOption.Value.Direction);
+                using var tiled = new MagickImage(MagickColors.Transparent, image.Width, image.Height);
 
-            image.Composite(watermark, gravity, CompositeOperator.Over);
+                var stepX = (int)watermark.Width * 2;
+                var stepY = (int)watermark.Height * 2;
+
+                for (int y = (int)-image.Height; y < image.Height * 2; y += stepY)
+                {
+                    for (int x = (int)-image.Width; x < image.Width * 2; x += stepX)
+                    {
+                        tiled.Composite(watermark, x, y, CompositeOperator.Over);
+                    }
+                }
+
+                image.Composite(tiled, CompositeOperator.Over);
+            }
+            else
+            {
+                watermark.Rotate(GetRotation(_watermarkOption.Value.Direction));
+
+                var gravity = GetGravity(_watermarkOption.Value.Direction);
+
+                image.Composite(watermark, gravity, CompositeOperator.Over);
+            }
         }
 
         // -------------------------

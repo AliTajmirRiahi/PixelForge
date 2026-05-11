@@ -16,7 +16,8 @@ namespace PixelForge.Infrastructure.Options
         BottomLeft,
         BottomRight,
         DiagonalLeft,   // ↘
-        DiagonalRight   // ↙
+        DiagonalRight,   // ↙
+        TiledDiagonal,
     }
     public class WatermarkOption
     {
