@@ -9,10 +9,12 @@ namespace PixelForge.Infrastructure.ImageProcessing;
 
 public sealed class MagickImageProcessor : IImageProcessor
 {
+    public ImageProccessingHelper _imageProccessingHelper { get; }
     public IOptions<WatermarkOption> _watermarkOption { get; }
 
-    public MagickImageProcessor(IOptions<WatermarkOption> watermarkOption)
+    public MagickImageProcessor(ImageProccessingHelper imageProccessingHelper ,IOptions<WatermarkOption> watermarkOption)
     {
+        _imageProccessingHelper = imageProccessingHelper;
         _watermarkOption = watermarkOption;
     }
     public async Task<ImageProcessResult> ProcessAsync(
@@ -58,7 +60,7 @@ public sealed class MagickImageProcessor : IImageProcessor
         // -------------------------
         if (!string.IsNullOrWhiteSpace(options.Format))
         {
-            image.Format = ParseFormat(options.Format);
+            image.Format = _imageProccessingHelper.ParseFormat(options.Format);
         }
 
         // -------------------------
@@ -108,9 +110,9 @@ public sealed class MagickImageProcessor : IImageProcessor
             }
             else
             {
-                watermark.Rotate(GetRotation(_watermarkOption.Value.Direction));
+                watermark.Rotate(_imageProccessingHelper.GetRotation(_watermarkOption.Value.Direction));
 
-                var gravity = GetGravity(_watermarkOption.Value.Direction);
+                var gravity = _imageProccessingHelper.GetGravity(_watermarkOption.Value.Direction);
 
                 image.Composite(watermark, gravity, CompositeOperator.Over);
             }
@@ -129,17 +131,7 @@ public sealed class MagickImageProcessor : IImageProcessor
         return new ImageProcessResult(output, mimeType);
     }
 
-    private static MagickFormat ParseFormat(string format)
-    {
-        return format.ToLower() switch
-        {
-            "jpg" or "jpeg" => MagickFormat.Jpeg,
-            "png" => MagickFormat.Png,
-            "webp" => MagickFormat.WebP,
-            "gif" => MagickFormat.Gif,
-            _ => MagickFormat.Jpeg
-        };
-    }
+
 
     public string GetImageMimeType(byte[] bytes)
     {
@@ -150,29 +142,4 @@ public sealed class MagickImageProcessor : IImageProcessor
 
     }
 
-    private static Gravity GetGravity(WatermarkDirection direction)
-    {
-        return direction switch
-        {
-            WatermarkDirection.Top => Gravity.North,
-            WatermarkDirection.Bottom => Gravity.South,
-            WatermarkDirection.Left => Gravity.West,
-            WatermarkDirection.Right => Gravity.East,
-            WatermarkDirection.Center => Gravity.Center,
-            WatermarkDirection.TopLeft => Gravity.Northwest,
-            WatermarkDirection.TopRight => Gravity.Northeast,
-            WatermarkDirection.BottomLeft => Gravity.Southwest,
-            WatermarkDirection.BottomRight => Gravity.Southeast,
-            _ => Gravity.Center
-        };
-    }
-    private static double GetRotation(WatermarkDirection direction)
-    {
-        return direction switch
-        {
-            WatermarkDirection.DiagonalLeft => 45,
-            WatermarkDirection.DiagonalRight => -45,
-            _ => 0
-        };
-    }
 }
