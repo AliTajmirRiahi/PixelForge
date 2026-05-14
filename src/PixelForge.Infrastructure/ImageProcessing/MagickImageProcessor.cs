@@ -146,23 +146,54 @@ public sealed class MagickImageProcessor : IImageProcessor
 
     }
 
-    public async Task<ImageProcessResult> ThumbnailAsync(Stream input, TransformOptions options, CancellationToken cancellationToken)
+    public async Task<ImageProcessResult> ThumbnailAsync(
+    Stream input,
+    TransformOptions options,
+    CancellationToken cancellationToken)
     {
-        if (input is null) throw new ArgumentNullException(nameof(input));
+        if (input is null)
+            throw new ArgumentNullException(nameof(input));
 
         cancellationToken.ThrowIfCancellationRequested();
 
         input.Position = 0;
         using var image = new MagickImage(input);
 
-        double scalePercentage = _thumbnailOption.Value.Scale;
+        // -------------------------
+        // Adaptive thumbnail logic
+        // -------------------------
+        double scale = _thumbnailOption.Value.Scale;
+        uint maxSize = _thumbnailOption.Value.MaxSize;
 
-        uint newWidth = (uint)(image.Width * scalePercentage);
-        uint newHeight = (uint)(image.Height * scalePercentage);
+        uint scaledWidth = (uint)(image.Width * scale);
+        uint scaledHeight = (uint)(image.Height * scale);
 
-        image.Thumbnail(new MagickGeometry(newWidth, newHeight));
+        scaledWidth = Math.Max(1u, scaledWidth);
+        scaledHeight = Math.Max(1u, scaledHeight);
 
-        image.Quality = options.Quality > 0 ? (uint)options.Quality : 75;
+        uint targetWidth = scaledWidth;
+        uint targetHeight = scaledHeight;
+
+        uint longestSide = Math.Max(scaledWidth, scaledHeight);
+
+        if (longestSide > maxSize)
+        {
+            double ratio = maxSize / (double)longestSide;
+            targetWidth = (uint)(scaledWidth * ratio);
+            targetHeight = (uint)(scaledHeight * ratio);
+        }
+
+        image.Thumbnail(new MagickGeometry(targetWidth, targetHeight)
+        {
+            IgnoreAspectRatio = false
+        });
+
+        // -------------------------
+        // Quality
+        // -------------------------
+        image.Quality = options.Quality > 0
+            ? (uint)options.Quality
+            : 75;
 
         // -------------------------
         // Format
@@ -184,5 +215,6 @@ public sealed class MagickImageProcessor : IImageProcessor
 
         return new ImageProcessResult(output, mimeType);
     }
+
 
 }
